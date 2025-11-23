@@ -1,0 +1,40 @@
+﻿@page
+@model MyWebApp.Pages.EquipmentsModel
+@{
+    ViewData["Title"] = "ОБОРУДОВАНИЕ";
+}
+
+<h1>/// СКЛАД_ОБОРУДОВАНИЯ</h1>
+
+<p>
+    <a asp-page="AddEditEquipment" class="btn btn-primary">[ + ДОБАВИТЬ УСТРОЙСТВО ]</a>
+</p>
+
+<table>
+    <thead>
+        <tr>
+            <th>МОДЕЛЬ</th>
+            <th>СЕРИЙНЫЙ НОМЕР</th>
+            <th>ТИП</th>
+            <th>НА СКЛАДЕ</th>
+            <th>ДЕЙСТВИЯ</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Equipments)
+        {
+            <tr>
+                <td>@item.ModelName</td>
+                <td>@item.SerialNumber</td>
+                <td>@item.Type</td>
+                <td>@(item.IsInStock ? "ДА" : "НЕТ")</td>
+                <td>
+                    <a asp-page="./AddEditEquipment" asp-route-id="@item.Id" class="btn">ИЗМЕНИТЬ</a>
+                    <form method="post" asp-page-handler="Delete" asp-route-id="@item.Id" style="display:inline;">
+                        <button type="submit" class="btn btn-danger">УДАЛИТЬ</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

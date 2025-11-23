@@ -1,0 +1,17 @@
+﻿@page
+@model ErrorModel
+@{
+    ViewData["Title"] = "КРИТИЧЕСКИЙ СБОЙ";
+}
+
+<h1 class="text-danger" style="font-size: 4em; text-shadow: 0 0 10px red;">/// SYSTEM_MALFUNCTION</h1>
+<h2 class="text-danger">ОБНАРУЖЕНА ОШИБКА ВЫПОЛНЕНИЯ КОДА</h2>
+
+@if (Model.ShowRequestId)
+{
+    <div style="border: 2px solid red; padding: 20px; background: #100; color: red; margin-top: 30px;">
+        <p><strong>REQUEST_ID:</strong> <code>@Model.RequestId</code></p>
+        <p>СТАТУС: <span style="background: red; color: black; padding: 0 5px;">FATAL_ERROR</span></p>
+        <p>РЕКОМЕНДАЦИЯ: ПЕРЕЗАГРУЗИТЕ НЕЙРОИНТЕРФЕЙС ИЛИ ОБРАТИТЕСЬ К АДМИНИСТРАТОРУ СЕТИ.</p>
+    </div>
+}

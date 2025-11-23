@@ -1,0 +1,45 @@
+﻿@page "{id:int?}"
+@model MyWebApp.Pages.AddEditTariffModel
+@{
+    ViewData["Title"] = Model.Tariff.Id == 0 ? "НОВЫЙ ТАРИФ" : "РЕДАКТИРОВАНИЕ";
+}
+
+<h2>/// @(Model.Tariff.Id == 0 ? "СОЗДАНИЕ_ТАРИФА" : "МОДИФИКАЦИЯ_ДАННЫХ")</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        <form method="post" style="background: #111; padding: 20px; border: 1px solid #333; box-shadow: 0 0 10px #0f0;">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Tariff.Id" />
+
+            <div class="form-group mb-3">
+                <label asp-for="Tariff.Name" class="control-label" style="color: #0f0;">НАЗВАНИЕ</label>
+                <input asp-for="Tariff.Name" class="form-control" style="background: #000; color: #fff; border: 1px solid #0f0;" />
+                <span asp-validation-for="Tariff.Name" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Tariff.SpeedMbps" class="control-label" style="color: #0f0;">СКОРОСТЬ (MBPS)</label>
+                <input asp-for="Tariff.SpeedMbps" class="form-control" type="number" style="background: #000; color: #fff; border: 1px solid #0f0;" />
+                <span asp-validation-for="Tariff.SpeedMbps" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Tariff.Price" class="control-label" style="color: #0f0;">ЦЕНА</label>
+                <input asp-for="Tariff.Price" class="form-control" type="number" step="0.01" style="background: #000; color: #fff; border: 1px solid #0f0;" />
+                <span asp-validation-for="Tariff.Price" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mt-4">
+                <button type="submit" class="btn btn-primary" style="width: 100%;">[ СОХРАНИТЬ ДАННЫЕ ]</button>
+                <a asp-page="/Tariffs" class="btn btn-danger mt-2" style="width: 100%;">[ ОТМЕНА ]</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

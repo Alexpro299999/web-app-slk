@@ -1,0 +1,53 @@
+﻿@page "{id:int?}"
+@model MyWebApp.Pages.AddEditSubscriberModel
+@{
+    ViewData["Title"] = Model.Subscriber.Id == 0 ? "НОВЫЙ АБОНЕНТ" : "РЕДАКТИРОВАНИЕ";
+}
+
+<h2>/// @(Model.Subscriber.Id == 0 ? "ПОДКЛЮЧЕНИЕ_АБОНЕНТА" : "ИЗМЕНЕНИЕ_КОНТРАКТА")</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        <form method="post" style="background: #111; padding: 20px; border: 1px solid #333; box-shadow: 0 0 10px #0f0;">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Subscriber.Id" />
+
+            <div class="form-group mb-3">
+                <label asp-for="Subscriber.FullName" class="control-label" style="color: #0f0;">ФИО АБОНЕНТА</label>
+                <input asp-for="Subscriber.FullName" class="form-control" style="background: #000; color: #fff; border: 1px solid #0f0;" />
+                <span asp-validation-for="Subscriber.FullName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Subscriber.Address" class="control-label" style="color: #0f0;">АДРЕС ПОДКЛЮЧЕНИЯ</label>
+                <input asp-for="Subscriber.Address" class="form-control" style="background: #000; color: #fff; border: 1px solid #0f0;" />
+                <span asp-validation-for="Subscriber.Address" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Subscriber.ContractNumber" class="control-label" style="color: #0f0;">НОМЕР ДОГОВОРА</label>
+                <input asp-for="Subscriber.ContractNumber" class="form-control" style="background: #000; color: #fff; border: 1px solid #0f0;" />
+                <span asp-validation-for="Subscriber.ContractNumber" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Subscriber.TariffId" class="control-label" style="color: #0f0;">ВЫБРАННЫЙ ТАРИФ</label>
+                <select asp-for="Subscriber.TariffId" class="form-control" asp-items="Model.TariffList" style="background: #000; color: #fff; border: 1px solid #0f0;">
+                    <option value="">-- ВЫБЕРИТЕ ТАРИФ --</option>
+                </select>
+                <span asp-validation-for="Subscriber.TariffId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mt-4">
+                <button type="submit" class="btn btn-primary" style="width: 100%;">[ АКТИВИРОВАТЬ ]</button>
+                <a asp-page="./Subscribers" class="btn btn-danger mt-2" style="width: 100%;">[ ОТМЕНА ]</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

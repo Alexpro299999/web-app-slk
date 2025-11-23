@@ -1,0 +1,38 @@
+﻿@page
+@model MyWebApp.Pages.TariffsModel
+@{
+    ViewData["Title"] = "ТАРИФЫ";
+}
+
+<h1>/// СПИСОК_ТАРИФОВ</h1>
+
+<p>
+    <a asp-page="AddEditTariff" class="btn btn-primary">[ + СОЗДАТЬ ТАРИФ ]</a>
+</p>
+
+<table>
+    <thead>
+        <tr>
+            <th>НАЗВАНИЕ</th>
+            <th>СКОРОСТЬ (MBPS)</th>
+            <th>ЦЕНА</th>
+            <th>ДЕЙСТВИЯ</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Tariffs)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.SpeedMbps</td>
+                <td>@item.Price</td>
+                <td>
+                    <a asp-page="./AddEditTariff" asp-route-id="@item.Id" class="btn">ИЗМЕНИТЬ</a>
+                    <form method="post" asp-page-handler="Delete" asp-route-id="@item.Id" style="display:inline;">
+                        <button type="submit" class="btn btn-danger">УДАЛИТЬ</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,40 @@
+﻿@page
+@model MyWebApp.Pages.SubscribersModel
+@{
+    ViewData["Title"] = "АБОНЕНТЫ";
+}
+
+<h1>/// БАЗА_АБОНЕНТОВ</h1>
+
+<p>
+    <a asp-page="AddEditSubscriber" class="btn btn-primary">[ + РЕГИСТРАЦИЯ АБОНЕНТА ]</a>
+</p>
+
+<table>
+    <thead>
+        <tr>
+            <th>ФИО</th>
+            <th>АДРЕС</th>
+            <th>ДОГОВОР</th>
+            <th>ТАРИФ</th>
+            <th>ДЕЙСТВИЯ</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Subscribers)
+        {
+            <tr>
+                <td>@item.FullName</td>
+                <td>@item.Address</td>
+                <td>@item.ContractNumber</td>
+                <td>@(item.Tariff != null ? item.Tariff.Name : "НЕТ")</td>
+                <td>
+                    <a asp-page="./AddEditSubscriber" asp-route-id="@item.Id" class="btn">ИЗМЕНИТЬ</a>
+                    <form method="post" asp-page-handler="Delete" asp-route-id="@item.Id" style="display:inline;">
+                        <button type="submit" class="btn btn-danger">УДАЛИТЬ</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

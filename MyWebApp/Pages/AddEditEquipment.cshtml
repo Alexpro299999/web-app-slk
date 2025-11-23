@@ -1,0 +1,55 @@
+﻿@page "{id:int?}"
+@model MyWebApp.Pages.AddEditEquipmentModel
+@{
+    ViewData["Title"] = Model.Equipment.Id == 0 ? "НОВОЕ УСТРОЙСТВО" : "РЕДАКТИРОВАНИЕ";
+}
+
+<h2>/// @(Model.Equipment.Id == 0 ? "РЕГИСТРАЦИЯ_ОБОРУДОВАНИЯ" : "ОБНОВЛЕНИЕ_ПАРАМЕТРОВ")</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        <form method="post" style="background: #111; padding: 20px; border: 1px solid #333; box-shadow: 0 0 10px #0f0;">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Equipment.Id" />
+
+            <div class="form-group mb-3">
+                <label asp-for="Equipment.ModelName" class="control-label" style="color: #0f0;">МОДЕЛЬ</label>
+                <input asp-for="Equipment.ModelName" class="form-control" style="background: #000; color: #fff; border: 1px solid #0f0;" />
+                <span asp-validation-for="Equipment.ModelName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Equipment.SerialNumber" class="control-label" style="color: #0f0;">СЕРИЙНЫЙ НОМЕР</label>
+                <input asp-for="Equipment.SerialNumber" class="form-control" style="background: #000; color: #fff; border: 1px solid #0f0;" />
+                <span asp-validation-for="Equipment.SerialNumber" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Equipment.Type" class="control-label" style="color: #0f0;">ТИП УСТРОЙСТВА</label>
+                <select asp-for="Equipment.Type" class="form-control" style="background: #000; color: #fff; border: 1px solid #0f0;">
+                    <option value="Router">РОУТЕР</option>
+                    <option value="Switch">КОММУТАТОР</option>
+                    <option value="Modem">МОДЕМ</option>
+                </select>
+                <span asp-validation-for="Equipment.Type" class="text-danger"></span>
+            </div>
+
+            <div class="form-group form-check mb-3">
+                <label class="form-check-label" style="color: #f0f;">
+                    <input class="form-check-input" asp-for="Equipment.IsInStock" /> НАЛИЧИЕ НА СКЛАДЕ
+                </label>
+            </div>
+
+            <div class="form-group mt-4">
+                <button type="submit" class="btn btn-primary" style="width: 100%;">[ ЗАПИСАТЬ В БАЗУ ]</button>
+                <a asp-page="./Equipments" class="btn btn-danger mt-2" style="width: 100%;">[ ОТМЕНА ]</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

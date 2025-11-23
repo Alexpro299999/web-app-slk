@@ -1,0 +1,130 @@
+:root {
+    --neon-green: #0f0;
+    --neon-pink: #f0f;
+    --dark-bg: #050505;
+    --panel-bg: #111;
+    --border-color: #333;
+}
+
+body {
+    background-color: var(--dark-bg);
+    color: var(--neon-green);
+    font-family: 'Courier New', Courier, monospace;
+    margin-bottom: 60px;
+}
+
+a {
+    color: var(--neon-pink);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: 0.3s;
+}
+
+    a:hover {
+        color: #fff;
+        text-shadow: 0 0 5px var(--neon-pink);
+    }
+
+.navbar {
+    background-color: var(--panel-bg);
+    border-bottom: 2px solid var(--neon-green);
+    box-shadow: 0 0 10px var(--neon-green);
+}
+
+.navbar-brand {
+    font-weight: bold;
+    letter-spacing: 2px;
+    color: #fff !important;
+}
+
+.nav-link {
+    color: var(--neon-green) !important;
+}
+
+.container {
+    max-width: 1200px;
+}
+
+h1, h2, h3 {
+    text-transform: uppercase;
+    border-left: 5px solid var(--neon-pink);
+    padding-left: 15px;
+    margin-top: 20px;
+    color: #fff;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: var(--panel-bg);
+}
+
+th {
+    background-color: #000;
+    color: var(--neon-pink);
+    border: 1px solid var(--neon-green);
+    padding: 10px;
+    text-align: left;
+}
+
+td {
+    border: 1px solid var(--border-color);
+    padding: 10px;
+    color: #ddd;
+}
+
+tr:hover td {
+    background-color: #222;
+    color: #fff;
+}
+
+.btn {
+    border-radius: 0;
+    border: 1px solid var(--neon-green);
+    background: transparent;
+    color: var(--neon-green);
+    padding: 5px 15px;
+    text-transform: uppercase;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+    .btn:hover {
+        background: var(--neon-green);
+        color: #000;
+        box-shadow: 0 0 10px var(--neon-green);
+    }
+
+.btn-primary {
+    border-color: var(--neon-pink);
+    color: var(--neon-pink);
+}
+
+    .btn-primary:hover {
+        background: var(--neon-pink);
+        color: #fff;
+        box-shadow: 0 0 10px var(--neon-pink);
+    }
+
+.btn-danger {
+    border-color: red;
+    color: red;
+}
+
+    .btn-danger:hover {
+        background: red;
+        color: white;
+        box-shadow: 0 0 10px red;
+    }
+
+footer {
+    background-color: var(--panel-bg);
+    border-top: 1px solid var(--border-color);
+    color: #666;
+    text-align: center;
+    padding: 20px 0;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
