@@ -13,7 +13,15 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    SeedData.Initialize(services);
+    try
+    {
+        SeedData.Initialize(services);
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "ОШИБКА ПРИ ЗАЛИВКЕ ДАННЫХ В БД (ВОЗМОЖНО СТАРЫЙ ФАЙЛ .DB)");
+    }
 }
 
 if (!app.Environment.IsDevelopment())

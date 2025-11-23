@@ -10,6 +10,7 @@ public static class SeedData
         using var context = new ApplicationDbContext(
             serviceProvider.GetRequiredService<DbContextOptions<ApplicationDbContext>>());
 
+        context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
 
         if (context.Tariffs.Any())
