@@ -1,28 +1,28 @@
 using Microsoft.EntityFrameworkCore;
 using MyWebApp.Data;
-using MyWebApp.Models;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddRazorPages();
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("MyWebAppDb") ?? throw new InvalidOperationException("Connection string 'MyWebAppDb' not found.")));
-
+    options.UseSqlite(connectionString));
+builder.Services.AddRazorPages();
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    try
-    {
-        SeedData.Initialize(services);
-    }
-    catch (Exception ex)
-    {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "ОШИБКА ПРИ ЗАЛИВКЕ ДАННЫХ В БД (ВОЗМОЖНО СТАРЫЙ ФАЙЛ .DB)");
-    }
+    var context = services.GetRequiredService<ApplicationDbContext>();
+    context.Database.Migrate();
+    SeedData.Initialize(services);
 }
+
+var cultureInfo = new CultureInfo("en-US");
+cultureInfo.NumberFormat.NumberDecimalSeparator = ".";
+cultureInfo.NumberFormat.CurrencyDecimalSeparator = ".";
+CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
 if (!app.Environment.IsDevelopment())
 {
@@ -32,11 +32,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
-
 app.UseAuthorization();
-
 app.MapRazorPages();
-
 app.Run();
