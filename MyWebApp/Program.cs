@@ -1,12 +1,17 @@
 using Microsoft.EntityFrameworkCore;
 using MyWebApp.Data;
+using MyWebApp.Services;
 using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(connectionString));
+    options.UseNpgsql(connectionString, x => x.UseVector()));
+
+builder.Services.AddScoped<IEmbeddingGenerator, MockEmbeddingGenerator>();
+
 builder.Services.AddRazorPages();
 var app = builder.Build();
 

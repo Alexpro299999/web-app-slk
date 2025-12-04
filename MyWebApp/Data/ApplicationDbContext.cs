@@ -13,4 +13,10 @@ public class ApplicationDbContext : DbContext
     public DbSet<Tariff> Tariffs { get; set; }
     public DbSet<Equipment> Equipments { get; set; }
     public DbSet<Subscriber> Subscribers { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        modelBuilder.HasPostgresExtension("vector");
+    }
 }

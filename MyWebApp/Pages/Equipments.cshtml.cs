@@ -3,36 +3,41 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using MyWebApp.Data;
 using MyWebApp.Models;
+using MyWebApp.Services;
+using Pgvector.EntityFrameworkCore;
 
-namespace MyWebApp.Pages;
-
-public class EquipmentsModel : PageModel
+namespace MyWebApp.Pages
 {
-    private readonly ApplicationDbContext _context;
-
-    public EquipmentsModel(ApplicationDbContext context)
+    public class EquipmentsModel : PageModel
     {
-        _context = context;
-    }
+        private readonly ApplicationDbContext _context;
+        private readonly IEmbeddingGenerator _embeddingGenerator;
 
-    public IList<Equipment> Equipments { get; set; } = default!;
-
-    public async Task OnGetAsync()
-    {
-        if (_context.Equipments != null)
+        public EquipmentsModel(ApplicationDbContext context, IEmbeddingGenerator embeddingGenerator)
         {
-            Equipments = await _context.Equipments.ToListAsync();
+            _context = context;
+            _embeddingGenerator = embeddingGenerator;
         }
-    }
 
-    public async Task<IActionResult> OnPostDeleteAsync(int id)
-    {
-        var eq = await _context.Equipments.FindAsync(id);
-        if (eq != null)
+        public IList<Equipment> Equipment { get; set; } = default!;
+
+        [BindProperty(SupportsGet = true)]
+        public string? SearchString { get; set; }
+
+        public async Task OnGetAsync()
         {
-            _context.Equipments.Remove(eq);
-            await _context.SaveChangesAsync();
+            if (!string.IsNullOrEmpty(SearchString))
+            {
+                var queryVector = _embeddingGenerator.GenerateEmbedding(SearchString);
+
+                Equipment = await _context.Equipments
+                    .OrderBy(e => e.Embedding!.L2Distance(queryVector))
+                    .ToListAsync();
+            }
+            else
+            {
+                Equipment = await _context.Equipments.ToListAsync();
+            }
         }
-        return RedirectToPage();
     }
 }

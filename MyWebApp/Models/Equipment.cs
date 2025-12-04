@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Pgvector;
 
 namespace MyWebApp.Models;
 
@@ -15,4 +17,7 @@ public class Equipment
     public string Type { get; set; } = "Router";
 
     public bool IsInStock { get; set; } = true;
+
+    [Column(TypeName = "vector(3)")]
+    public Vector? Embedding { get; set; }
 }

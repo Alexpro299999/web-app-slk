@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MyWebApp.Models;
+using MyWebApp.Services;
+using Pgvector;
 
 namespace MyWebApp.Data
 {
@@ -11,9 +13,11 @@ namespace MyWebApp.Data
                 serviceProvider.GetRequiredService<
                     DbContextOptions<ApplicationDbContext>>()))
             {
+                var embeddingGenerator = new MockEmbeddingGenerator();
+
                 if (context.Tariffs.Any())
                 {
-                    return;   
+                    return;
                 }
 
                 var tariffs = new Tariff[]
@@ -24,14 +28,41 @@ namespace MyWebApp.Data
                     new Tariff { Name = "Премиум", SpeedMbps = 1000, Price = 1200 }
                 };
                 context.Tariffs.AddRange(tariffs);
-                context.SaveChanges(); 
-
+                context.SaveChanges();
 
                 context.Equipments.AddRange(
-                    new Equipment { ModelName = "TP-Link Archer C6", SerialNumber = "SN-102030", Type = "Роутер", IsInStock = true },
-                    new Equipment { ModelName = "D-Link DIR-842", SerialNumber = "SN-506070", Type = "Роутер", IsInStock = true },
-                    new Equipment { ModelName = "Huawei HG8245", SerialNumber = "GPON-998877", Type = "GPON Терминал", IsInStock = false },
-                    new Equipment { ModelName = "Keenetic Giga", SerialNumber = "KN-1011", Type = "Роутер", IsInStock = true }
+                    new Equipment
+                    {
+                        ModelName = "TP-Link Archer C6",
+                        SerialNumber = "SN-102030",
+                        Type = "Роутер",
+                        IsInStock = true,
+                        Embedding = embeddingGenerator.GenerateEmbedding("TP-Link Archer C6 Роутер")
+                    },
+                    new Equipment
+                    {
+                        ModelName = "D-Link DIR-842",
+                        SerialNumber = "SN-506070",
+                        Type = "Роутер",
+                        IsInStock = true,
+                        Embedding = embeddingGenerator.GenerateEmbedding("D-Link DIR-842 Роутер")
+                    },
+                    new Equipment
+                    {
+                        ModelName = "Huawei HG8245",
+                        SerialNumber = "GPON-998877",
+                        Type = "GPON Терминал",
+                        IsInStock = false,
+                        Embedding = embeddingGenerator.GenerateEmbedding("Huawei HG8245 GPON Терминал")
+                    },
+                    new Equipment
+                    {
+                        ModelName = "Keenetic Giga",
+                        SerialNumber = "KN-1011",
+                        Type = "Роутер",
+                        IsInStock = true,
+                        Embedding = embeddingGenerator.GenerateEmbedding("Keenetic Giga Роутер")
+                    }
                 );
                 context.SaveChanges();
 
@@ -41,14 +72,14 @@ namespace MyWebApp.Data
                         FullName = "Иванов Иван Иванович",
                         Address = "ул. Ленина, д. 10, кв. 5",
                         ContractNumber = "CTR-2024-001",
-                        TariffId = tariffs[0].Id 
+                        TariffId = tariffs[0].Id
                     },
                     new Subscriber
                     {
                         FullName = "Петрова Анна Сергеевна",
                         Address = "пр. Мира, д. 45, кв. 120",
                         ContractNumber = "CTR-2024-002",
-                        TariffId = tariffs[1].Id 
+                        TariffId = tariffs[1].Id
                     },
                     new Subscriber
                     {
