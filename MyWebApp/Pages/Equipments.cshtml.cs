@@ -1,43 +1,53 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using MyWebApp.Data;
 using MyWebApp.Models;
 using MyWebApp.Services;
-using Pgvector.EntityFrameworkCore;
 
 namespace MyWebApp.Pages
 {
     public class EquipmentsModel : PageModel
     {
-        private readonly ApplicationDbContext _context;
-        private readonly IEmbeddingGenerator _embeddingGenerator;
+        private readonly EquipmentService _equipmentService;
 
-        public EquipmentsModel(ApplicationDbContext context, IEmbeddingGenerator embeddingGenerator)
+        public EquipmentsModel(EquipmentService equipmentService)
         {
-            _context = context;
-            _embeddingGenerator = embeddingGenerator;
+            _equipmentService = equipmentService;
         }
 
-        public IList<Equipment> Equipment { get; set; } = default!;
+        // --- ИСПРАВЛЕНИЕ 1: Список устройств ---
+        // Инициализируем пустым списком, чтобы не было null
+        public IList<Equipment> Equipments { get; set; } = new List<Equipment>();
 
+        // --- ИСПРАВЛЕНИЕ 2: Одиночное устройство ---
+        // Нужно для формы добавления (BindProperty связывает данные из формы с этой переменной)
+        [BindProperty]
+        public Equipment Equipment { get; set; } = default!;
+
+        // --- ИСПРАВЛЕНИЕ 3: Поиск ---
+        // Добавил '?', теперь может быть пустым (null)
         [BindProperty(SupportsGet = true)]
         public string? SearchString { get; set; }
 
         public async Task OnGetAsync()
         {
-            if (!string.IsNullOrEmpty(SearchString))
-            {
-                var queryVector = _embeddingGenerator.GenerateEmbedding(SearchString);
+            // Если строка поиска пустая, передаем пустую строку, чтобы метод не упал
+            Equipments = await _equipmentService.SearchAsync(SearchString ?? string.Empty);
+        }
 
-                Equipment = await _context.Equipments
-                    .OrderBy(e => e.Embedding!.L2Distance(queryVector))
-                    .ToListAsync();
-            }
-            else
+        // Метод для добавления устройства (если у вас есть кнопка "Сохранить" на этой странице)
+        public async Task<IActionResult> OnPostAsync()
+        {
+            if (!ModelState.IsValid)
             {
-                Equipment = await _context.Equipments.ToListAsync();
+                // Если ошибка валидации, перезагружаем список и показываем страницу снова
+                Equipments = await _equipmentService.SearchAsync(SearchString ?? string.Empty);
+                return Page();
             }
+
+            // Используем сервис для добавления (он сам сгенерирует вектор)
+            await _equipmentService.AddEquipmentAsync(Equipment);
+
+            return RedirectToPage();
         }
     }
 }

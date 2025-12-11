@@ -2,16 +2,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using MyWebApp.Data;
 using MyWebApp.Models;
+using MyWebApp.Services;
 
 namespace MyWebApp.Pages;
 
 public class AddEditEquipmentModel : PageModel
 {
     private readonly ApplicationDbContext _context;
+    private readonly IEmbeddingGenerator _embeddingGenerator;
 
-    public AddEditEquipmentModel(ApplicationDbContext context)
+    public AddEditEquipmentModel(ApplicationDbContext context, IEmbeddingGenerator embeddingGenerator)
     {
         _context = context;
+        _embeddingGenerator = embeddingGenerator;
     }
 
     [BindProperty]
@@ -37,6 +40,9 @@ public class AddEditEquipmentModel : PageModel
         {
             return Page();
         }
+
+        var textToEmbed = $"{Equipment.ModelName} {Equipment.Type}";
+        Equipment.Embedding = _embeddingGenerator.GenerateEmbedding(textToEmbed);
 
         if (Equipment.Id == 0)
         {

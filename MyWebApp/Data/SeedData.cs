@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MyWebApp.Models;
 using MyWebApp.Services;
-using Pgvector;
 
 namespace MyWebApp.Data
 {
@@ -13,83 +12,66 @@ namespace MyWebApp.Data
                 serviceProvider.GetRequiredService<
                     DbContextOptions<ApplicationDbContext>>()))
             {
-                var embeddingGenerator = new MockEmbeddingGenerator();
+                var embeddingGenerator = serviceProvider.GetRequiredService<IEmbeddingGenerator>();
 
-                if (context.Tariffs.Any())
+                // 1. Создаем тарифы, если нет
+                if (!context.Tariffs.Any())
                 {
-                    return;
+                    var tariffs = new Tariff[]
+                    {
+                        new Tariff { Name = "Эконом", SpeedMbps = 100, Price = 450 },
+                        new Tariff { Name = "Стандарт", SpeedMbps = 300, Price = 650 },
+                        new Tariff { Name = "Геймер", SpeedMbps = 800, Price = 990 },
+                        new Tariff { Name = "Премиум", SpeedMbps = 1000, Price = 1200 }
+                    };
+                    context.Tariffs.AddRange(tariffs);
+                    context.SaveChanges();
                 }
 
-                var tariffs = new Tariff[]
+                // 2. Работаем с оборудованием
+                var equipments = context.Equipments.ToList();
+
+                // Если оборудования вообще нет, добавляем начальное
+                if (!equipments.Any())
                 {
-                    new Tariff { Name = "Эконом", SpeedMbps = 100, Price = 450 },
-                    new Tariff { Name = "Стандарт", SpeedMbps = 300, Price = 650 },
-                    new Tariff { Name = "Геймер", SpeedMbps = 800, Price = 990 },
-                    new Tariff { Name = "Премиум", SpeedMbps = 1000, Price = 1200 }
-                };
-                context.Tariffs.AddRange(tariffs);
-                context.SaveChanges();
-
-                context.Equipments.AddRange(
-                    new Equipment
+                    context.Equipments.AddRange(
+                        new Equipment { ModelName = "TP-Link Archer C6", SerialNumber = "SN-102030", Type = "Router", IsInStock = true, Embedding = embeddingGenerator.GenerateEmbedding("TP-Link Archer C6 Router") },
+                        new Equipment { ModelName = "D-Link DIR-842", SerialNumber = "SN-506070", Type = "Router", IsInStock = true, Embedding = embeddingGenerator.GenerateEmbedding("D-Link DIR-842 Router") },
+                        new Equipment { ModelName = "Huawei HG8245", SerialNumber = "GPON-998877", Type = "Modem", IsInStock = false, Embedding = embeddingGenerator.GenerateEmbedding("Huawei HG8245 Modem") },
+                        new Equipment { ModelName = "Keenetic Giga", SerialNumber = "KN-1011", Type = "Router", IsInStock = true, Embedding = embeddingGenerator.GenerateEmbedding("Keenetic Giga Router") }
+                    );
+                    context.SaveChanges();
+                }
+                else
+                {
+                    // ВАЖНО: Если оборудование есть, обновляем ему векторы (fix для существующих данных)
+                    bool wasUpdated = false;
+                    foreach (var eq in equipments)
                     {
-                        ModelName = "TP-Link Archer C6",
-                        SerialNumber = "SN-102030",
-                        Type = "Роутер",
-                        IsInStock = true,
-                        Embedding = embeddingGenerator.GenerateEmbedding("TP-Link Archer C6 Роутер")
-                    },
-                    new Equipment
-                    {
-                        ModelName = "D-Link DIR-842",
-                        SerialNumber = "SN-506070",
-                        Type = "Роутер",
-                        IsInStock = true,
-                        Embedding = embeddingGenerator.GenerateEmbedding("D-Link DIR-842 Роутер")
-                    },
-                    new Equipment
-                    {
-                        ModelName = "Huawei HG8245",
-                        SerialNumber = "GPON-998877",
-                        Type = "GPON Терминал",
-                        IsInStock = false,
-                        Embedding = embeddingGenerator.GenerateEmbedding("Huawei HG8245 GPON Терминал")
-                    },
-                    new Equipment
-                    {
-                        ModelName = "Keenetic Giga",
-                        SerialNumber = "KN-1011",
-                        Type = "Роутер",
-                        IsInStock = true,
-                        Embedding = embeddingGenerator.GenerateEmbedding("Keenetic Giga Роутер")
+                        // Генерируем вектор заново, чтобы он соответствовал текущему алгоритму
+                        var text = $"{eq.ModelName} {eq.Type}";
+                        eq.Embedding = embeddingGenerator.GenerateEmbedding(text);
+                        wasUpdated = true;
                     }
-                );
-                context.SaveChanges();
 
-                context.Subscribers.AddRange(
-                    new Subscriber
+                    if (wasUpdated)
                     {
-                        FullName = "Иванов Иван Иванович",
-                        Address = "ул. Ленина, д. 10, кв. 5",
-                        ContractNumber = "CTR-2024-001",
-                        TariffId = tariffs[0].Id
-                    },
-                    new Subscriber
-                    {
-                        FullName = "Петрова Анна Сергеевна",
-                        Address = "пр. Мира, д. 45, кв. 120",
-                        ContractNumber = "CTR-2024-002",
-                        TariffId = tariffs[1].Id
-                    },
-                    new Subscriber
-                    {
-                        FullName = "Сидоров Алексей Петрович",
-                        Address = "ул. Гагарина, д. 7, кв. 33",
-                        ContractNumber = "CTR-2024-003",
-                        TariffId = tariffs[2].Id
+                        context.UpdateRange(equipments);
+                        context.SaveChanges();
                     }
-                );
-                context.SaveChanges();
+                }
+
+                // 3. Создаем абонентов, если нет
+                if (!context.Subscribers.Any())
+                {
+                    var tariffId = context.Tariffs.First().Id;
+                    context.Subscribers.AddRange(
+                        new Subscriber { FullName = "Иванов Иван Иванович", Address = "ул. Ленина, д. 10, кв. 5", ContractNumber = "CTR-2024-001", TariffId = tariffId },
+                        new Subscriber { FullName = "Петрова Анна Сергеевна", Address = "пр. Мира, д. 45, кв. 120", ContractNumber = "CTR-2024-002", TariffId = tariffId },
+                        new Subscriber { FullName = "Сидоров Алексей Петрович", Address = "ул. Гагарина, д. 7, кв. 33", ContractNumber = "CTR-2024-003", TariffId = tariffId }
+                    );
+                    context.SaveChanges();
+                }
             }
         }
     }

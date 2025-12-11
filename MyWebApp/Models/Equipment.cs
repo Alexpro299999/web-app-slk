@@ -1,23 +1,25 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Pgvector;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Pgvector;
 
-namespace MyWebApp.Models;
-
-public class Equipment
+namespace MyWebApp.Models
 {
-    public int Id { get; set; }
+    public class Equipment
+    {
+        [Key]
+        public int Id { get; set; }
 
-    [Required]
-    public string ModelName { get; set; } = string.Empty;
+        public string ModelName { get; set; } = string.Empty;
 
-    [Required]
-    public string SerialNumber { get; set; } = string.Empty;
+        public string SerialNumber { get; set; } = string.Empty;
 
-    public string Type { get; set; } = "Router";
+        public string Type { get; set; } = string.Empty;
 
-    public bool IsInStock { get; set; } = true;
+        public string Description { get; set; } = string.Empty;
 
-    [Column(TypeName = "vector(3)")]
-    public Vector? Embedding { get; set; }
+        public bool IsInStock { get; set; }
+
+        [Column(TypeName = "vector(384)")]
+        public Vector? Embedding { get; set; }
+    }
 }
