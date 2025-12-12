@@ -1,0 +1,52 @@
+﻿@page "{id:int}"
+@model MyWebApp.Pages.Dynamic.StructureModel
+@{
+    ViewData["Title"] = "Структура: " + Model.Table?.Name;
+}
+
+<h2>Структура таблицы: @Model.Table?.Name</h2>
+<a asp-page="./Index">Назад</a>
+
+<div class="card my-3">
+    <div class="card-body">
+        <form method="post" class="row g-3">
+            <div class="col-auto">
+                <input type="text" asp-for="ColumnName" class="form-control" placeholder="Имя колонки" required />
+            </div>
+            <div class="col-auto">
+                <select asp-for="ColumnType" class="form-select">
+                    <option value="string">Строка</option>
+                    <option value="int">Число</option>
+                    <option value="bool">Логическое</option>
+                    <option value="date">Дата</option>
+                </select>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">Добавить колонку</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Название</th>
+            <th>Тип</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Table != null)
+        {
+            foreach (var col in Model.Table.Columns)
+            {
+                <tr>
+                    <td>@col.Id</td>
+                    <td>@col.Name</td>
+                    <td>@col.DataType</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

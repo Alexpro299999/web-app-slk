@@ -9,14 +9,14 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(connectionString, x => x.UseVector())); // Включаем поддержку векторов
+    options.UseNpgsql(connectionString, x => x.UseVector()));
 
 //builder.Services.AddScoped<IEmbeddingGenerator, MockEmbeddingGenerator>(); 
 
 builder.Services.AddScoped<IOpenAiService, OpenAiService>();
 builder.Services.AddScoped<EquipmentService>();
 builder.Services.AddRazorPages();
-
+builder.Services.AddScoped<MyWebApp.Services.DynamicDbService>();
 var app = builder.Build();
 
 var cultureInfo = new CultureInfo("en-US");

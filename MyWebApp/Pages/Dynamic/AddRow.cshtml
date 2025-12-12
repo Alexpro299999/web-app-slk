@@ -1,0 +1,32 @@
+﻿@page "{id:int}"
+@model MyWebApp.Pages.Dynamic.AddRowModel
+@{
+    ViewData["Title"] = "Добавить запись";
+}
+
+<h2>Добавить запись в @Model.Table?.Name</h2>
+
+<form method="post">
+    @if (Model.Table != null)
+    {
+        foreach (var col in Model.Table.Columns)
+        {
+            <div class="mb-3">
+                <label class="form-label">@col.Name (@col.DataType)</label>
+                @if (col.DataType == "bool")
+                {
+                    <select name="Values[@col.Id]" class="form-select">
+                        <option value="true">Да</option>
+                        <option value="false">Нет</option>
+                    </select>
+                }
+                else
+                {
+                    <input type="text" name="Values[@col.Id]" class="form-control" />
+                }
+            </div>
+        }
+    }
+    <button type="submit" class="btn btn-success">Сохранить</button>
+    <a asp-page="./Data" asp-route-id="@Model.Table?.Id" class="btn btn-secondary">Отмена</a>
+</form>

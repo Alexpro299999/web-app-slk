@@ -1,0 +1,51 @@
+﻿@page
+@model MyWebApp.Pages.Dynamic.IndexModel
+@{
+    ViewData["Title"] = "Конструктор таблиц";
+}
+
+<h2>Конструктор таблиц</h2>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="post" class="row g-3">
+            <div class="col-auto">
+                <input type="text" asp-for="NewTableName" class="form-control" placeholder="Название таблицы" required />
+            </div>
+            <div class="col-auto">
+                <input type="text" asp-for="NewTableDesc" class="form-control" placeholder="Описание" />
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">Создать</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Название</th>
+            <th>Описание</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var table in Model.Tables)
+        {
+            <tr>
+                <td>@table.Id</td>
+                <td>@table.Name</td>
+                <td>@table.Description</td>
+                <td>
+                    <a asp-page="./Structure" asp-route-id="@table.Id" class="btn btn-sm btn-info">Структура</a>
+                    <a asp-page="./Data" asp-route-id="@table.Id" class="btn btn-sm btn-success">Данные</a>
+                    <form method="post" asp-page-handler="Delete" asp-route-id="@table.Id" style="display:inline;">
+                        <button class="btn btn-sm btn-danger" onclick="return confirm('Удалить таблицу?');">X</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

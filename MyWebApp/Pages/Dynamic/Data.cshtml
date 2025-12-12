@@ -1,0 +1,47 @@
+﻿@page "{id:int}"
+@model MyWebApp.Pages.Dynamic.DataModel
+@{
+    ViewData["Title"] = "Данные: " + Model.Table?.Name;
+}
+
+<div class="d-flex justify-content-between align-items-center">
+    <h2>@Model.Table?.Name (Данные)</h2>
+    <a asp-page="./AddRow" asp-route-id="@Model.Table?.Id" class="btn btn-primary">Добавить запись</a>
+</div>
+<a asp-page="./Index">Назад</a>
+
+<div class="table-responsive mt-3">
+    <table class="table table-hover table-bordered">
+        <thead>
+            <tr>
+                @if (Model.Table != null)
+                {
+                    foreach (var col in Model.Table.Columns)
+                    {
+                        <th>@col.Name</th>
+                    }
+                }
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var row in Model.Rows)
+            {
+                <tr>
+                    @if (Model.Table != null)
+                    {
+                        foreach (var col in Model.Table.Columns)
+                        {
+                            <td>@(row.ContainsKey(col.Name) ? row[col.Name] : "")</td>
+                        }
+                    }
+                    <td>
+                        <form method="post" asp-page-handler="Delete" asp-route-id="@Model.Table?.Id" asp-route-rowId="@row["_Id"]">
+                            <button class="btn btn-sm btn-danger">X</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
