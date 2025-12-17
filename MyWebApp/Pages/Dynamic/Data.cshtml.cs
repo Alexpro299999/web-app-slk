@@ -17,6 +17,9 @@ public class DataModel : PageModel
     public MetaTable? Table { get; set; }
     public List<Dictionary<string, string>> Rows { get; set; } = new();
 
+    [TempData]
+    public string? ErrorMessage { get; set; }
+
     public async Task<IActionResult> OnGetAsync(int id)
     {
         Table = await _service.GetTableSchemaAsync(id);
@@ -28,7 +31,14 @@ public class DataModel : PageModel
 
     public async Task<IActionResult> OnPostDeleteAsync(int id, int rowId)
     {
-        await _service.DeleteRowAsync(rowId);
+        try
+        {
+            await _service.DeleteRowAsync(rowId);
+        }
+        catch (InvalidOperationException ex)
+        {
+            ErrorMessage = ex.Message;
+        }
         return RedirectToPage(new { id });
     }
 }

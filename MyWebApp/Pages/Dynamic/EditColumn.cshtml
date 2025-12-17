@@ -1,0 +1,37 @@
+﻿@page "{id:int}"
+@model MyWebApp.Pages.Dynamic.EditColumnModel
+@{
+    ViewData["Title"] = "Редактировать колонку";
+}
+
+<h2>Редактировать колонку</h2>
+
+<div class="card" style="max-width: 500px;">
+    <div class="card-body">
+        <form method="post">
+            <div class="mb-3">
+                <label class="form-label">Название</label>
+                <input asp-for="Name" class="form-control" required />
+            </div>
+
+            @if (Model.Column?.DataType == "relation")
+            {
+                <div class="mb-3">
+                    <label class="form-label">Таблица для связи</label>
+                    <select asp-for="LinkedTableId" asp-items="Model.AvailableTables" class="form-select">
+                        <option value="">-- Выберите таблицу --</option>
+                    </select>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    Тип данных: <strong>@Model.Column?.DataType</strong>. (Смена типа пока недоступна для безопасности данных).
+                </div>
+            }
+
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+            <a asp-page="./Structure" asp-route-id="@Model.Column?.MetaTableId" class="btn btn-secondary">Отмена</a>
+        </form>
+    </div>
+</div>

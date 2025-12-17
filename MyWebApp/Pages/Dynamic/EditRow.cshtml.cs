@@ -5,25 +5,25 @@ using MyWebApp.Services;
 
 namespace MyWebApp.Pages.Dynamic;
 
-public class AddRowModel : PageModel
+public class EditRowModel : PageModel
 {
     private readonly DynamicDbService _service;
 
-    public AddRowModel(DynamicDbService service)
+    public EditRowModel(DynamicDbService service)
     {
         _service = service;
     }
 
     public MetaTable? Table { get; set; }
+    public Dictionary<int, string> CurrentValues { get; set; } = new();
     public Dictionary<int, Dictionary<int, string>> RelationsData { get; set; } = new();
 
-    // Убрали [BindProperty], чтобы не вызывать ошибку валидации
-    public Dictionary<int, string> Values { get; set; } = new();
-
-    public async Task<IActionResult> OnGetAsync(int id)
+    public async Task<IActionResult> OnGetAsync(int tableId, int rowId)
     {
-        Table = await _service.GetTableSchemaAsync(id);
+        Table = await _service.GetTableSchemaAsync(tableId);
         if (Table == null) return NotFound();
+
+        CurrentValues = await _service.GetRowValuesAsync(rowId);
 
         foreach (var col in Table.Columns.Where(c => c.DataType == "relation" && c.LinkedTableId.HasValue))
         {
@@ -33,19 +33,15 @@ public class AddRowModel : PageModel
         return Page();
     }
 
-    public async Task<IActionResult> OnPostAsync(int id)
+    public async Task<IActionResult> OnPostAsync(int tableId, int rowId)
     {
-        // Ручной сбор данных из формы, чтобы избежать ошибки с __RequestVerificationToken
         var values = new Dictionary<int, string>();
 
         foreach (var key in Request.Form.Keys)
         {
-            // Ищем поля, которые начинаются на "Values["
             if (key.StartsWith("Values["))
             {
-                // Вырезаем ID колонки из строки вида "Values[15]"
                 var idStr = key.Replace("Values[", "").Replace("]", "");
-
                 if (int.TryParse(idStr, out int colId))
                 {
                     values[colId] = Request.Form[key].ToString();
@@ -54,8 +50,8 @@ public class AddRowModel : PageModel
         }
 
         var files = Request.Form.Files;
-        await _service.AddRowAsync(id, values, files);
+        await _service.UpdateRowAsync(rowId, values, files);
 
-        return RedirectToPage("Data", new { id });
+        return RedirectToPage("Data", new { id = tableId });
     }
 }

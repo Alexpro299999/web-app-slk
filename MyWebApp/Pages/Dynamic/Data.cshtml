@@ -8,7 +8,15 @@
     <h2>@Model.Table?.Name (Данные)</h2>
     <a asp-page="./AddRow" asp-route-id="@Model.Table?.Id" class="btn btn-primary">Добавить запись</a>
 </div>
-<a asp-page="./Index">Назад</a>
+<a asp-page="./Index">Назад к таблицам</a>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+        @Model.ErrorMessage
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 
 <div class="table-responsive mt-3">
     <table class="table table-hover table-bordered">
@@ -32,11 +40,24 @@
                     {
                         foreach (var col in Model.Table.Columns)
                         {
-                            <td>@(row.ContainsKey(col.Name) ? row[col.Name] : "")</td>
+                            <td>
+                                @if (row.ContainsKey(col.Name))
+                                {
+                                    if (col.DataType == "file" && !string.IsNullOrEmpty(row[col.Name]))
+                                    {
+                                        <a href="@row[col.Name]" target="_blank">Скачать</a>
+                                    }
+                                    else
+                                    {
+                                        @row[col.Name]
+                                    }
+                                }
+                            </td>
                         }
                     }
-                    <td>
-                        <form method="post" asp-page-handler="Delete" asp-route-id="@Model.Table?.Id" asp-route-rowId="@row["_Id"]">
+                    <td style="width: 150px;">
+                        <a asp-page="./EditRow" asp-route-tableId="@Model.Table?.Id" asp-route-rowId="@row["_Id"]" class="btn btn-sm btn-warning">Изм.</a>
+                        <form method="post" asp-page-handler="Delete" asp-route-id="@Model.Table?.Id" asp-route-rowId="@row["_Id"]" style="display:inline;" onsubmit="return confirm('Удалить эту запись?');">
                             <button class="btn btn-sm btn-danger">X</button>
                         </form>
                     </td>

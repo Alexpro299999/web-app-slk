@@ -1,29 +1,36 @@
-﻿@page "{id:int}"
-@model MyWebApp.Pages.Dynamic.AddRowModel
+﻿@page "{tableId:int}/{rowId:int}"
+@model MyWebApp.Pages.Dynamic.EditRowModel
 @{
-    ViewData["Title"] = "Добавить запись";
+    ViewData["Title"] = "Редактировать запись";
 }
 
-<h2>Добавить запись в @Model.Table?.Name</h2>
+<h2>Редактировать запись в @Model.Table?.Name</h2>
 
 <form method="post" enctype="multipart/form-data">
     @if (Model.Table != null)
     {
         foreach (var col in Model.Table.Columns)
         {
+            var val = Model.CurrentValues.ContainsKey(col.Id) ? Model.CurrentValues[col.Id] : "";
+
             <div class="mb-3">
                 <label class="form-label">@col.Name (@col.DataType)</label>
 
                 @if (col.DataType == "bool")
                 {
                     <select name="Values[@col.Id]" class="form-select">
-                        <option value="true">Да</option>
-                        <option value="false">Нет</option>
+                        <option value="true" selected="@(val == "true")">Да</option>
+                        <option value="false" selected="@(val != "true")">Нет</option>
                     </select>
                 }
                 else if (col.DataType == "file")
                 {
+                    @if (!string.IsNullOrEmpty(val))
+                    {
+                        <div class="mb-1"><a href="@val" target="_blank">Текущий файл</a></div>
+                    }
                     <input type="file" name="file_@col.Id" class="form-control" />
+                    <input type="hidden" name="Values[@col.Id]" value="@val" />
                 }
                 else if (col.DataType == "relation" && Model.RelationsData.ContainsKey(col.Id))
                 {
@@ -31,17 +38,17 @@
                         <option value="">-- Выберите --</option>
                         @foreach (var opt in Model.RelationsData[col.Id])
                         {
-                            <option value="@opt.Key">@opt.Value</option>
+                            <option value="@opt.Key" selected="@(val == opt.Key.ToString())">@opt.Value</option>
                         }
                     </select>
                 }
                 else
                 {
-                    <input type="text" name="Values[@col.Id]" class="form-control" />
+                    <input type="text" name="Values[@col.Id]" value="@val" class="form-control" />
                 }
             </div>
         }
     }
-    <button type="submit" class="btn btn-success">Сохранить</button>
+    <button type="submit" class="btn btn-primary">Сохранить изменения</button>
     <a asp-page="./Data" asp-route-id="@Model.Table?.Id" class="btn btn-secondary">Отмена</a>
 </form>

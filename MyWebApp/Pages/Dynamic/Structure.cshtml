@@ -5,24 +5,35 @@
 }
 
 <h2>Структура таблицы: @Model.Table?.Name</h2>
-<a asp-page="./Index">Назад</a>
+<a asp-page="./Index">Назад к списку таблиц</a>
 
-<div class="card my-3">
+<div class="card my-3 bg-light">
     <div class="card-body">
-        <form method="post" class="row g-3">
+        <h5>Добавить новую колонку</h5>
+        <form method="post" class="row g-3 align-items-end">
             <div class="col-auto">
-                <input type="text" asp-for="ColumnName" class="form-control" placeholder="Имя колонки" required />
+                <label>Имя колонки</label>
+                <input type="text" asp-for="ColumnName" class="form-control" required />
             </div>
             <div class="col-auto">
-                <select asp-for="ColumnType" class="form-select">
+                <label>Тип</label>
+                <select asp-for="ColumnType" class="form-select" id="typeSelector">
                     <option value="string">Строка</option>
                     <option value="int">Число</option>
                     <option value="bool">Логическое</option>
                     <option value="date">Дата</option>
+                    <option value="file">Файл</option>
+                    <option value="relation">Связь (Link)</option>
+                </select>
+            </div>
+            <div class="col-auto" id="linkSelector" style="display:none;">
+                <label>Связать с таблицей</label>
+                <select asp-for="LinkedTableId" asp-items="Model.AvailableTables" class="form-select">
+                    <option value="">-- Выберите таблицу --</option>
                 </select>
             </div>
             <div class="col-auto">
-                <button type="submit" class="btn btn-primary">Добавить колонку</button>
+                <button type="submit" class="btn btn-primary">Добавить</button>
             </div>
         </form>
     </div>
@@ -34,6 +45,8 @@
             <th>ID</th>
             <th>Название</th>
             <th>Тип</th>
+            <th>Связь (ID таблицы)</th>
+            <th>Действия</th>
         </tr>
     </thead>
     <tbody>
@@ -45,8 +58,28 @@
                     <td>@col.Id</td>
                     <td>@col.Name</td>
                     <td>@col.DataType</td>
+                    <td>@(col.LinkedTableId.HasValue? col.LinkedTableId.ToString() : "-")</td>
+                    <td>
+                        <a asp-page="./EditColumn" asp-route-id="@col.Id" class="btn btn-sm btn-warning">Изм.</a>
+                        <form method="post" asp-page-handler="DeleteColumn" asp-route-id="@Model.Table.Id" asp-route-colId="@col.Id" style="display:inline;" onsubmit="return confirm('Удалить колонку? Все данные в ней будут потеряны!');">
+                            <button class="btn btn-sm btn-danger">Х</button>
+                        </form>
+                    </td>
                 </tr>
             }
         }
     </tbody>
 </table>
+
+@section Scripts {
+    <script>
+        document.getElementById('typeSelector').addEventListener('change', function() {
+            var linkDiv = document.getElementById('linkSelector');
+            if (this.value === 'relation') {
+                linkDiv.style.display = 'block';
+            } else {
+                linkDiv.style.display = 'none';
+            }
+        });
+    </script>
+}
